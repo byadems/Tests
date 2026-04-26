@@ -10,8 +10,8 @@ channel = "stable-23_05"
 language = "python3"
 
 [deployment]
-run = ["sh", "-c", "python3 enough.py"]
-deploymentTarget = "cloudrun"
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "--worker-class=gthread", "--threads=4", "--timeout=300", "app:app"]
+deploymentTarget = "autoscale"
 
 [workflows]
 runButton = "Project"
@@ -40,3 +40,6 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[agent]
+expertMode = true
