@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enough — Control Panel</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --red: #f85149;
+      --yellow: #d29922;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --radius: 8px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), #79c0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 2px;
+    }
+
+    header p {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 0.875rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 0.75rem;
+      margin-top: 10px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .card h2 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8125rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 9px 12px;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    input::placeholder { color: var(--muted); }
+
+    .mode-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .mode-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      padding: 10px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+
+    .mode-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(88, 166, 255, 0.08);
+    }
+
+    .mode-btn:hover:not(.active) {
+      border-color: var(--muted);
+      color: var(--text);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 11px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      margin-top: 6px;
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-start {
+      background: var(--green);
+      color: #000;
+    }
+
+    .btn-stop {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat-box .val {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .stat-box .lbl {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .stat-box.sent .val { color: var(--green); }
+    .stat-box.failed .val { color: var(--red); }
+    .stat-box.status .val { font-size: 0.875rem; }
+
+    .log-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      height: 400px;
+      overflow-y: auto;
+      padding: 12px;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.75rem;
+      line-height: 1.6;
+    }
+
+    .log-box::-webkit-scrollbar { width: 4px; }
+    .log-box::-webkit-scrollbar-track { background: transparent; }
+    .log-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .log-line { display: flex; gap: 8px; padding: 1px 0; }
+    .log-time { color: var(--muted); flex-shrink: 0; }
+    .log-msg.success { color: var(--green); }
+    .log-msg.error { color: var(--red); }
+    .log-msg.info { color: var(--accent); }
+    .log-msg.ping { display: none; }
+
+    .services-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .service-tag {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .error-msg {
+      background: rgba(248, 81, 73, 0.1);
+      border: 1px solid var(--red);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.8125rem;
+      color: var(--red);
+      margin-top: 10px;
+      display: none;
+    }
+
+    .hint {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      margin-right: 4px;
+    }
+
+    .status-dot.running {
+      background: var(--green);
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ENOUGH</h1>
+    <p>SMS Control Panel</p>
+    <span class="badge">{{ service_count }} Active Services</span>
+  </header>
+
+  <div class="layout">
+    <div>
+      <div class="card">
+        <h2>Configuration</h2>
+
+        <div class="form-group">
+          <label>Mode</label>
+          <div class="mode-group">
+            <div class="mode-btn active" id="btn-normal" onclick="setMode('normal')">Normal</div>
+            <div class="mode-btn" id="btn-turbo" onclick="setMode('turbo')">⚡ Turbo</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Phone Number(s)</label>
+          <input type="text" id="phone" placeholder="5XXXXXXXXX" />
+          <p class="hint">10 digits, no +90. Separate multiple with commas (Normal mode only).</p>
+        </div>
+
+        <div class="form-group">
+          <label>Email Address <span style="color:var(--muted)">(optional)</span></label>
+          <input type="text" id="mail" placeholder="example@gmail.com" />
+        </div>
+
+        <div id="normal-options">
+          <div class="form-group">
+            <label>SMS Count</label>
+            <input type="number" id="count" placeholder="Leave empty for unlimited" min="1" />
+          </div>
+
+          <div class="form-group">
+            <label>Interval (seconds)</label>
+            <input type="number" id="interval" value="1" min="0" step="0.1" />
+          </div>
+        </div>
+
+        <div id="error-box" class="error-msg"></div>
+
+        <button class="btn btn-start" id="btn-start" onclick="startSend()">Start</button>
+        <button class="btn btn-stop" id="btn-stop" onclick="stopSend()" disabled>Stop</button>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <h2>Available Services</h2>
+        <div class="services-grid">
+          {% for svc in services %}
+          <span class="service-tag">{{ svc }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>Statistics</h2>
+        <div class="stats-row">
+          <div class="stat-box sent">
+            <div class="val" id="stat-sent">0</div>
+            <div class="lbl">Sent</div>
+          </div>
+          <div class="stat-box failed">
+            <div class="val" id="stat-failed">0</div>
+            <div class="lbl">Failed</div>
+          </div>
+          <div class="stat-box status">
+            <div class="val" id="stat-status"><span class="status-dot" id="dot"></span>Idle</div>
+            <div class="lbl">Status</div>
+          </div>
+        </div>
+
+        <h2>Live Log</h2>
+        <div class="log-box" id="log-box"></div>
+        <button class="btn" style="background:var(--surface);border:1px solid var(--border);color:var(--muted);margin-top:8px;" onclick="clearLog()">Clear Log</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let mode = "normal";
+    let evtSource = null;
+
+    function setMode(m) {
+      mode = m;
+      document.getElementById("btn-normal").classList.toggle("active", m === "normal");
+      document.getElementById("btn-turbo").classList.toggle("active", m === "turbo");
+      document.getElementById("normal-options").style.display = m === "normal" ? "block" : "none";
+    }
+
+    function showError(msg) {
+      const el = document.getElementById("error-box");
+      el.textContent = msg;
+      el.style.display = "block";
+    }
+
+    function hideError() {
+      document.getElementById("error-box").style.display = "none";
+    }
+
+    function appendLog(msg, status, time) {
+      const box = document.getElementById("log-box");
+      const line = document.createElement("div");
+      line.className = "log-line";
+      line.innerHTML = `<span class="log-time">${time}</span><span class="log-msg ${status}">${escapeHtml(msg)}</span>`;
+      box.appendChild(line);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function clearLog() {
+      document.getElementById("log-box").innerHTML = "";
+    }
+
+    function setRunning(running) {
+      document.getElementById("btn-start").disabled = running;
+      document.getElementById("btn-stop").disabled = !running;
+      const dot = document.getElementById("dot");
+      const statusEl = document.getElementById("stat-status");
+      if (running) {
+        dot.className = "status-dot running";
+        statusEl.innerHTML = '<span class="status-dot running"></span>Running';
+      } else {
+        dot.className = "status-dot";
+        statusEl.innerHTML = '<span class="status-dot"></span>Idle';
+      }
+    }
+
+    function startSSE() {
+      if (evtSource) evtSource.close();
+      evtSource = new EventSource("/logs");
+      evtSource.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        if (data.status === "ping") return;
+        appendLog(data.message, data.status, data.time);
+      };
+    }
+
+    function startStatsPolling() {
+      setInterval(async () => {
+        const r = await fetch("/stats");
+        const s = await r.json();
+        document.getElementById("stat-sent").textContent = s.sent;
+        document.getElementById("stat-failed").textContent = s.failed;
+        setRunning(s.running);
+      }, 1000);
+    }
+
+    async function startSend() {
+      hideError();
+      const phone = document.getElementById("phone").value.trim();
+      const mail = document.getElementById("mail").value.trim();
+      const count = document.getElementById("count") ? document.getElementById("count").value.trim() : "";
+      const interval = document.getElementById("interval") ? document.getElementById("interval").value.trim() : "1";
+
+      const body = { mode, phone, mail, count, interval };
+
+      const res = await fetch("/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showError(data.error || "Unknown error.");
+        return;
+      }
+      setRunning(true);
+      startSSE();
+    }
+
+    async function stopSend() {
+      await fetch("/stop", { method: "POST" });
+    }
+
+    startStatsPolling();
+    startSSE();
+  </script>
+</body>
+</html>
