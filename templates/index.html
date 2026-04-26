@@ -62,9 +62,9 @@
 
     .layout {
       display: grid;
-      grid-template-columns: 380px 1fr;
+      grid-template-columns: 400px 1fr;
       gap: 20px;
-      max-width: 1200px;
+      max-width: 1240px;
       margin: 0 auto;
     }
 
@@ -77,6 +77,7 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 20px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
     }
 
     .card h2 {
@@ -90,6 +91,61 @@
 
     .form-group {
       margin-bottom: 14px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .ghost-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8125rem;
+    }
+
+    .ghost-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .list-input {
+      min-height: 110px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(88, 166, 255, 0.12);
+      border: 1px solid rgba(88, 166, 255, 0.25);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 0.78rem;
+    }
+
+    .chip button {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.9rem;
     }
 
     label {
@@ -185,6 +241,7 @@
       border-radius: 6px;
       padding: 14px;
       text-align: center;
+      min-height: 92px;
     }
 
     .stat-box .val {
@@ -260,6 +317,63 @@
       margin-top: 3px;
     }
 
+    .panel-subtitle {
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+    }
+
+    .hero {
+      max-width: 1240px;
+      margin: 0 auto 20px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(88,166,255,0.16), rgba(22,27,34,0.96));
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 0.6fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    @media (max-width: 800px) {
+      .hero-grid { grid-template-columns: 1fr; }
+    }
+
+    .hero h2 {
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .hero-stat {
+      background: rgba(13, 17, 23, 0.45);
+      border: 1px solid rgba(48, 54, 61, 0.8);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .hero-stat strong {
+      display: block;
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
     .status-dot {
       display: inline-block;
       width: 8px;
@@ -283,14 +397,29 @@
 <body>
   <header>
     <h1>ENOUGH</h1>
-    <p>SMS Control Panel</p>
+    <p>Operations Control Panel</p>
     <span class="badge">{{ service_count }} Active Services</span>
   </header>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <h2>Modern queue dashboard</h2>
+        <p>Manage multiple numbers, add items later, and monitor live status from a cleaner, more responsive interface.</p>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><strong id="hero-sent">0</strong><span>Sent</span></div>
+        <div class="hero-stat"><strong id="hero-failed">0</strong><span>Failed</span></div>
+        <div class="hero-stat"><strong id="hero-status">Idle</strong><span>Status</span></div>
+      </div>
+    </div>
+  </section>
 
   <div class="layout">
     <div>
       <div class="card">
         <h2>Configuration</h2>
+        <p class="panel-subtitle">Manage number lists, queue items, and send presets.</p>
 
         <div class="form-group">
           <label>Mode</label>
@@ -301,9 +430,15 @@
         </div>
 
         <div class="form-group">
-          <label>Phone Number(s)</label>
-          <input type="text" id="phone" placeholder="5XXXXXXXXX" />
-          <p class="hint">10 digits, no +90. Separate multiple with commas (Normal mode only).</p>
+          <label>Phone Numbers</label>
+          <textarea class="list-input" id="phone-list" placeholder="Paste one number per line or comma-separated"></textarea>
+          <p class="hint">Use 10-digit local format only. You can add more later with the button below.</p>
+          <div class="toolbar">
+            <button class="ghost-btn" type="button" onclick="addInlineNumber()">Add Number</button>
+            <button class="ghost-btn" type="button" onclick="importClipboard()">Paste List</button>
+            <button class="ghost-btn" type="button" onclick="clearNumbers()">Clear</button>
+          </div>
+          <div class="chips" id="number-chips"></div>
         </div>
 
         <div class="form-group">
@@ -367,12 +502,66 @@
   <script>
     let mode = "normal";
     let evtSource = null;
+    let numbers = [];
 
     function setMode(m) {
       mode = m;
       document.getElementById("btn-normal").classList.toggle("active", m === "normal");
       document.getElementById("btn-turbo").classList.toggle("active", m === "turbo");
       document.getElementById("normal-options").style.display = m === "normal" ? "block" : "none";
+    }
+
+    function renderChips() {
+      const box = document.getElementById("number-chips");
+      box.innerHTML = numbers.map((n, i) => `<span class="chip">${escapeHtml(n)}<button type="button" onclick="removeNumber(${i})">×</button></span>`).join("");
+      document.getElementById("phone-list").value = numbers.join("\n");
+    }
+
+    function parseNumbers(raw) {
+      return raw
+        .split(/[\n,]+/)
+        .map(v => v.trim())
+        .filter(Boolean);
+    }
+
+    function syncNumbersFromTextarea() {
+      numbers = parseNumbers(document.getElementById("phone-list").value);
+      renderChips();
+    }
+
+    function addInlineNumber() {
+      const value = prompt("Enter a phone number (10 digits):", "");
+      if (!value) return;
+      const clean = value.replace(/\s+/g, "");
+      if (!/^\d{10}$/.test(clean)) {
+        showError("Phone numbers must be 10 digits.");
+        return;
+      }
+      hideError();
+      if (!numbers.includes(clean)) numbers.push(clean);
+      renderChips();
+    }
+
+    async function importClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        const items = parseNumbers(text).filter(v => /^\d{10}$/.test(v));
+        numbers = [...new Set([...numbers, ...items])];
+        renderChips();
+        hideError();
+      } catch {
+        showError("Clipboard access was blocked.");
+      }
+    }
+
+    function removeNumber(index) {
+      numbers.splice(index, 1);
+      renderChips();
+    }
+
+    function clearNumbers() {
+      numbers = [];
+      renderChips();
     }
 
     function showError(msg) {
@@ -407,12 +596,16 @@
       document.getElementById("btn-stop").disabled = !running;
       const dot = document.getElementById("dot");
       const statusEl = document.getElementById("stat-status");
+      const heroStatus = document.getElementById("hero-status");
+      if (!dot || !statusEl || !heroStatus) return;
       if (running) {
         dot.className = "status-dot running";
-        statusEl.innerHTML = '<span class="status-dot running"></span>Running';
+        statusEl.textContent = "Running";
+        heroStatus.textContent = "Running";
       } else {
         dot.className = "status-dot";
-        statusEl.innerHTML = '<span class="status-dot"></span>Idle';
+        statusEl.textContent = "Idle";
+        heroStatus.textContent = "Idle";
       }
     }
 
@@ -438,7 +631,8 @@
 
     async function startSend() {
       hideError();
-      const phone = document.getElementById("phone").value.trim();
+      syncNumbersFromTextarea();
+      const phone = numbers.join(",");
       const mail = document.getElementById("mail").value.trim();
       const count = document.getElementById("count") ? document.getElementById("count").value.trim() : "";
       const interval = document.getElementById("interval") ? document.getElementById("interval").value.trim() : "1";
@@ -465,6 +659,7 @@
 
     startStatsPolling();
     startSSE();
+    renderChips();
   </script>
 </body>
 </html>
